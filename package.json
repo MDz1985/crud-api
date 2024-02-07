@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "start": "nodemon src/app.ts"
+  },
   "keywords": [],
   "author": "MDz1985",
   "license": "ISC",
@@ -12,6 +14,7 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.3",
+    "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   }
 }
