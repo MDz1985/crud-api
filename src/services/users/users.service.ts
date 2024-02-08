@@ -3,6 +3,8 @@ import { IUser } from '../../../src/models/users/user';
 import path from 'node:path';
 import { writeFile } from 'node:fs/promises';
 
+const UsersDataPath = path.join('src', 'server', 'data', 'users.json');
+
 export class UsersService {
   static instance: UsersService;
   private readonly _uuid = v4;
@@ -16,24 +18,33 @@ export class UsersService {
   }
 
   public async createUserRequest(user: IUser) {
-    if(!this.checkUser(user)) throw new Error('user was not created1' );
+    if (!this.checkUser(user)) throw new Error('user was not created1');
     user.id = this.genetateId();
     const users = await this.getUsersFromServer();
     users.push(user);
     try {
-      await writeFile(path.join('src', 'server', 'data', 'users.json'), JSON.stringify(users))
-    } catch(err) {
-      throw new Error('user was not created' );
+      await writeFile(UsersDataPath, JSON.stringify(users));
+    } catch (err) {
+      throw new Error('user was not created');
     }
     return JSON.stringify(user);
   }
 
-  public updateUserRequest(id: string) {
+  public async updateUserRequest(id: string) {
     console.log('update user: ' + id);
   }
 
-  public deleteUserRequest(id: string) {
-    console.log('delete user: ' + id);
+  public async deleteUserRequest(userId: string) {
+    const users: IUser[] = await this.getUsersFromServer();
+    const user: IUser | undefined = users.find(({ id }) => userId === id);
+    const result: IUser[] = users.filter(({id}) => id !== userId);
+    if (!user) throw new Error('user was not removed1');
+    try {
+      await writeFile(UsersDataPath, JSON.stringify(result));
+    } catch {
+      throw new Error('user was not deleted');
+    }
+    return JSON.stringify(user);
   }
 
   private async getUserById(userId: string) {
@@ -59,9 +70,9 @@ export class UsersService {
 
   checkUser(user: IUser) {
     let result = typeof user.username === 'string' && Array.isArray(user.hobbies) && typeof user.age === 'number';
-    if(result && user.hobbies.length) {
-      result = user.hobbies.every((el) => typeof el === 'string')
+    if (result && user.hobbies.length) {
+      result = user.hobbies.every((el) => typeof el === 'string');
     }
-    return result
+    return result;
   }
 }

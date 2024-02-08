@@ -40,8 +40,7 @@ export class RequestsService {
           id ? this._usersService.updateUserRequest(id) : this.handleErrors()
           break;
         case METHODS.DELETE:
-          id ? this._usersService.deleteUserRequest(id) : this.handleErrors()
-          break;
+          return id ? this._usersService.deleteUserRequest(id) : this.handleErrors()
         default:
           this.handleErrors()
       }
