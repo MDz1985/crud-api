@@ -30,8 +30,17 @@ export class UsersService {
     return JSON.stringify(user);
   }
 
-  public async updateUserRequest(id: string) {
-    console.log('update user: ' + id);
+  public async updateUserRequest(user: IUser) {
+    const users: IUser[] = await this.getUsersFromServer();
+    const result: IUser[] = users.filter(({id}) => id !== user.id);
+    if (users.length === result.length) throw new Error('user was not removed1');
+    result.push(user);
+    try {
+      await writeFile(UsersDataPath, JSON.stringify(result));
+    } catch {
+      throw new Error('user was not deleted');
+    }
+    return JSON.stringify(user);
   }
 
   public async deleteUserRequest(userId: string) {

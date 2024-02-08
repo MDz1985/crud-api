@@ -4,6 +4,12 @@ import { METHODS } from '../../models/server/enums/methods';
 import { UsersService } from '../users/users.service';
 import { IUser } from '../../models/users/user';
 
+const newUserMock = {
+  id: '',
+  username: 'uuuuuuu',
+  age: 37,
+  hobbies: ['sds','sfs']
+}
 export class RequestsService {
   static instance: RequestsService;
   private _usersService = new UsersService();
@@ -37,8 +43,7 @@ export class RequestsService {
         case METHODS.POST:
           return id ? this.handleErrors() : this._usersService.createUserRequest(data)
         case METHODS.PUT:
-          id ? this._usersService.updateUserRequest(id) : this.handleErrors()
-          break;
+          return id ? this._usersService.updateUserRequest({...newUserMock, id}) : this.handleErrors()
         case METHODS.DELETE:
           return id ? this._usersService.deleteUserRequest(id) : this.handleErrors()
         default:
