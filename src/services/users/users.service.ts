@@ -19,7 +19,7 @@ export class UsersService {
 
   public async createUserRequest(user: IUser) {
     if (!this.checkUser(user)) throw new Error('user was not created1');
-    user.id = this.genetateId();
+    user.id = this.generateId();
     const users = await this.getUsersFromServer();
     users.push(user);
     try {
@@ -69,7 +69,7 @@ export class UsersService {
     return JSON.stringify(users);
   }
 
-  private genetateId() {
+  private generateId() {
     return this._uuid();
   }
 

@@ -50,17 +50,16 @@ export class RequestsService {
     }
   }
 
-  async getRequestData(req: IncomingMessage): Promise<IUser> {
+  public handleErrors() {
+    console.log('ERROR');
+  }
+
+  private async getRequestData(req: IncomingMessage): Promise<IUser> {
     let result = '';
     req.on('data', (chunk) => result += chunk);
     req.on('end', () => result);
     await once(req, 'end')
     console.log(result);
     return JSON.parse(result)
-  }
-
-
-  public handleErrors() {
-    console.log('ERROR');
   }
 }
