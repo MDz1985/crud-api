@@ -22,7 +22,7 @@ export class RequestsService {
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
       res.end(body);
     } catch (e) {
-      res.writeHead(500);
+      res.writeHead(this.getFailedRequestCode(<Error>e));
       res.end((<Error>e)?.message ?? ERRORS.INTERNAL_ERROR);
     }
   };
@@ -57,6 +57,19 @@ export class RequestsService {
 
   public handleEndpointError() {
     throw new Error(ERRORS.INVALID_ENDPOINT)
+  }
+
+  private getFailedRequestCode(e: Error): REQUEST_CODES {
+    switch (e?.message) {
+      case ERRORS.INVALID_USER_ID:
+      case ERRORS.INCOMPLETE_OR_WRONG_TYPE:
+        return REQUEST_CODES.INVALID
+      case ERRORS.NOT_EXIST:
+      case ERRORS.INVALID_ENDPOINT:
+        return REQUEST_CODES.NOT_EXIST
+      default:
+        return REQUEST_CODES.SERVER_ERROR
+    }
   }
 
   private getSuccessRequestCode(req: IncomingMessage): REQUEST_CODES {
