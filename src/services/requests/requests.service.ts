@@ -4,6 +4,8 @@ import { METHODS } from '../../models/server/enums/methods';
 import { UsersService } from '../users/users.service';
 import { IUser } from '../../models/users/user';
 import { once } from 'node:events';
+import { REQUEST_CODES } from '../../models/server/enums/request-codes';
+import { ERRORS } from '../../models/server/enums/errors';
 
 export class RequestsService {
   static instance: RequestsService;
@@ -16,50 +18,64 @@ export class RequestsService {
   public HttpHandler = async (req: IncomingMessage, res: ServerResponse) => {
     try {
       const body = await this.requestSeparator(req);
-      res.statusCode = 200;
+      res.statusCode = this.getSuccessRequestCode(req);
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
       res.end(body);
     } catch (e) {
-      console.log(e);
-      res.writeHead(500, 'Error');
-      res.end('error');
+      res.writeHead(500);
+      res.end((<Error>e)?.message ?? ERRORS.INTERNAL_ERROR);
     }
   };
 
   public async requestSeparator(req: IncomingMessage) {
-    const url = req.url?.split('/');
-    if (!url || !url[1] || !url[2] || url[2] !== PATH.USER || url.length > 4) {
-      this.handleErrors();
-    } else {
-      const [, , , id] = url;
-      let data;
-      switch (req.method) {
-        case METHODS.GET:
-          return this._usersService.getUsersRequest(id);
-        case METHODS.POST:
-          data = await this.getRequestData(req);
-          return id ? this.handleErrors() : this._usersService.createUserRequest(data);
-        case METHODS.PUT:
-          data = await this.getRequestData(req);
-          return id ? this._usersService.updateUserRequest({ ...data, id }) : this.handleErrors();
-        case METHODS.DELETE:
-          return id ? this._usersService.deleteUserRequest(id) : this.handleErrors();
-        default:
-          this.handleErrors();
+    try {
+      const url = req.url?.split('/');
+      if (!url || !url[1] || !url[2] || url[1] !== PATH.API || url[2] !== PATH.USER || url.length > 4) {
+        this.handleEndpointError();
+      } else {
+        const [, , , id] = url;
+        let data;
+        switch (req.method) {
+          case METHODS.GET:
+            return this._usersService.getUsersRequest(id);
+          case METHODS.POST:
+            data = await this.getRequestData(req);
+            return id ? this.handleEndpointError() : this._usersService.createUserRequest(data);
+          case METHODS.PUT:
+            data = await this.getRequestData(req);
+            return id ? this._usersService.updateUserRequest({ ...data, id }) : this.handleEndpointError();
+          case METHODS.DELETE:
+            return id ? this._usersService.deleteUserRequest(id) : this.handleEndpointError();
+          default:
+            this.handleEndpointError();
+        }
       }
+    } catch (e) {
+      throw e;
     }
   }
 
-  public handleErrors() {
-    console.log('ERROR');
+  public handleEndpointError() {
+    throw new Error(ERRORS.INVALID_ENDPOINT)
+  }
+
+  private getSuccessRequestCode(req: IncomingMessage): REQUEST_CODES {
+    switch (req.method) {
+      case METHODS.POST:
+        return REQUEST_CODES.SUCCESS_POST;
+      case METHODS.DELETE:
+        return REQUEST_CODES.SUCCESS_DELETE;
+      default:
+        return REQUEST_CODES.SUCCESS_GET_PUT
+    }
   }
 
   private async getRequestData(req: IncomingMessage): Promise<IUser> {
     let result = '';
     req.on('data', (chunk) => result += chunk);
     req.on('end', () => result);
-    await once(req, 'end')
+    await once(req, 'end');
     console.log(result);
-    return JSON.parse(result)
+    return JSON.parse(result);
   }
 }
