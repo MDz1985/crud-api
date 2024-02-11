@@ -1,8 +1,8 @@
 import { v4, validate } from 'uuid';
-import { IUser } from '../../../src/models/users/user';
+import { IUser } from '../../../src/models/users/user.ts';
 import path from 'node:path';
 import { writeFile } from 'node:fs/promises';
-import { ERRORS } from '../../models/server/enums/errors';
+import { ERRORS } from '../../models/server/enums/errors.ts';
 
 const UsersDataPath = path.join('src', 'server', 'data', 'users.json');
 
@@ -91,7 +91,7 @@ export class UsersService {
   }
 
   private async getUsersFromServer(): Promise<IUser[]> {
-    return (await import('../../server/data/users.json')).default;
+    return (await import('../../server/data/users.json', { assert: { type: "json" }})).default;
   }
 
   private checkUser(user: IUser) {

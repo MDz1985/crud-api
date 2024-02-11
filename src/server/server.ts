@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 import 'dotenv/config';
 import { env } from 'process';
-import { RequestsService } from '../services/requests/requests.service';
+import { RequestsService } from '../services/requests/requests.service.ts';
 
 
 const hostname = 'localhost';

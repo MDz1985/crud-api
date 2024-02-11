@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start:dev": "nodemon src/app.ts",
-    "start:build": "webpack --mode production && nodemon dist/bundle.js"
+    "start:build": "webpack --mode production && nodemon dist/bundle.js",
+    "multi": "nodemon src/workers/load-balancer.ts"
   },
   "keywords": [],
   "author": "MDz1985",

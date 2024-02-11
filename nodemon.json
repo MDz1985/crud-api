@@ -1,0 +1,8 @@
+{
+  "execMap": {
+    "ts": "node --no-warnings --loader ts-node/esm"
+  },
+  "ext": "ts",
+  "watch": ["src"],
+  "ignore": ["node_modules"]
+}

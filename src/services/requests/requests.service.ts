@@ -1,11 +1,11 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { PATH } from '../../models/server/enums/path';
-import { METHODS } from '../../models/server/enums/methods';
-import { UsersService } from '../users/users.service';
-import { IUser } from '../../models/users/user';
+import { PATH } from '../../models/server/enums/path.ts';
+import { METHODS } from '../../models/server/enums/methods.ts';
+import { UsersService } from '../users/users.service.ts';
+import { IUser } from '../../models/users/user.ts';
 import { once } from 'node:events';
-import { REQUEST_CODES } from '../../models/server/enums/request-codes';
-import { ERRORS } from '../../models/server/enums/errors';
+import { REQUEST_CODES } from '../../models/server/enums/request-codes.ts';
+import { ERRORS } from '../../models/server/enums/errors.ts';
 
 export class RequestsService {
   static instance: RequestsService;
@@ -59,7 +59,7 @@ export class RequestsService {
     throw new Error(ERRORS.INVALID_ENDPOINT)
   }
 
-  private getFailedRequestCode(e: Error): REQUEST_CODES {
+  getFailedRequestCode(e: Error): REQUEST_CODES {
     switch (e?.message) {
       case ERRORS.INVALID_USER_ID:
       case ERRORS.INCOMPLETE_OR_WRONG_TYPE:
@@ -72,7 +72,7 @@ export class RequestsService {
     }
   }
 
-  private getSuccessRequestCode(req: IncomingMessage): REQUEST_CODES {
+  public getSuccessRequestCode(req: IncomingMessage): REQUEST_CODES {
     switch (req.method) {
       case METHODS.POST:
         return REQUEST_CODES.SUCCESS_POST;
@@ -83,7 +83,7 @@ export class RequestsService {
     }
   }
 
-  private async getRequestData(req: IncomingMessage): Promise<IUser> {
+  public async getRequestData(req: IncomingMessage): Promise<IUser> {
     let result = '';
     req.on('data', (chunk) => result += chunk);
     req.on('end', () => result);
