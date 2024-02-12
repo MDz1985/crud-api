@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "start:dev": "nodemon src/app.ts",
-    "start:build": "webpack --mode production && nodemon dist/bundle.js",
-    "multi": "nodemon src/workers/load-balancer.ts"
+    "start:prod": "webpack --mode production && nodemon dist/bundle.js",
+    "start:multi": "nodemon src/workers/load-balancer.ts"
   },
   "keywords": [],
   "author": "MDz1985",
