@@ -34,7 +34,6 @@ createServer(MultiHttpHandler)
 
 
 parentPort?.on('message', (message) => {
-  console.log(message);
   createRequest(message);
 });
 
@@ -56,7 +55,7 @@ const sendResult = (message: IPostMessage) => {
 
 function createRequest({ path, method, data }: IRequestOptions) {
 
-  console.log(path, method,  '!PATH');
+  console.log(path, method, data,  'worker-59');
 
   const options = {
     port: PORT,
@@ -84,6 +83,7 @@ function createRequest({ path, method, data }: IRequestOptions) {
   req.on('error', (e) => {
     console.error(`problem with request: ${ e.message }`);
   });
+
 
   req.write(data);
   req.end();

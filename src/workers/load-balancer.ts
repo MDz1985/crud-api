@@ -3,7 +3,8 @@ import { Worker } from 'worker_threads';
 import path from 'node:path';
 import url from 'url';
 import { RequestsService } from '../services/requests/requests.service.ts';
-// import { ERRORS } from 'src/models/server/enums/errors';
+import { IUser } from '../models/users/user.ts';
+
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 const requestService = new RequestsService()
@@ -27,33 +28,25 @@ class WorkerManager {
 const workerManager = new WorkerManager();
 
 const server = http.createServer(async (req, res) => {
-  const response = await new Promise((resolve) => {
-    // const requestData = requestService.getRequestData(req);
-    // todo: add data to the request
-    const requestData = '{}';
+  const requestData = await requestService.getRequestData(req);
+  const response = await new Promise<IWorkerResponse>((resolve) => {
     const worker = workerManager.getNextWorker();
-    worker.postMessage({ path: req.url, method: req.method, data: requestData });
-    worker.on('message', (data) => resolve({ status: 'resolved', data }));
-    worker.on('error', ({ message }) => resolve({ status: 'error', data: message }));
+    worker.postMessage({ path: req.url, method: req.method, data: JSON.stringify(requestData) });
+    worker.on('message', (data) => {
+      resolve({ status: 'resolved', data: data.response, error: data.error })
+    });
+    worker.on('error', ({ message }) => resolve({ status: 'error', error: new Error(message)} ));
   });
-  console.log(response, 'resp-BALANCE');
-  // @ts-ignore
-  if (!response.data || response.data.error) {
-    // @ts-ignore
-    res.writeHead(requestService.getFailedRequestCode(response.data.error));
-    // @ts-ignore
-    res.end(response?.data.error || 'Internal Error');
+
+
+  if (response.error) {
+    res.writeHead(requestService.getFailedRequestCode(response.error));
+    res.end(response.error || 'Internal Error');
   } else {
     res.statusCode = requestService.getSuccessRequestCode(req);
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    // @ts-ignore
-    res.end(response.data.response);
+    res.end(response?.data);
   }
-  // res.statusCode = this.getSuccessRequestCode(req);
-  // res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  // res.end('body');
-  // res.writeHead(this.getFailedRequestCode(<Error>e));
-  // res.end((<Error>e)?.message ?? ERRORS.INTERNAL_ERROR);
 });
 
 
@@ -63,4 +56,9 @@ server.listen(PORT, () => {
 });
 
 
+interface IWorkerResponse {
+  status: string;
+  data?: IUser;
+  error?: Error;
 
+}

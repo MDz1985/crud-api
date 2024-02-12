@@ -88,7 +88,6 @@ export class RequestsService {
     req.on('data', (chunk) => result += chunk);
     req.on('end', () => result);
     await once(req, 'end');
-    console.log(result);
     return JSON.parse(result);
   }
 }
