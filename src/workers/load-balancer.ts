@@ -4,13 +4,15 @@ import path from 'node:path';
 import url from 'url';
 import { RequestsService } from '../services/requests/requests.service.ts';
 import { IUser } from '../models/users/user.ts';
+import os from 'node:os';
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 const requestService = new RequestsService()
 
 const PORT = process.env.PORT || 4000;
-const THREADS_COUNT = 4;
+const THREADS_COUNT = os.cpus().length - 1;
+
 const START_PORT_NUMBER = Number(process.env.PORT ?? 4000) + 1;
 
 class WorkerManager {
